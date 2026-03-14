@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Test - Wedding Invitation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1410;
+            color: #f5f1e8;
+        }
+        h1 {
+            color: #d4af37;
+            text-align: center;
+        }
+        .audio-player {
+            background: #2a2010;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border: 1px solid #d4af37;
+        }
+        .audio-player h3 {
+            color: #d4af37;
+            margin-top: 0;
+        }
+        button {
+            background: #d4af37;
+            color: #1a1410;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #f5d56d;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            background: #1a1410;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .success { color: #4ade80; }
+        .error { color: #f87171; }
+        .info { color: #60a5fa; }
+    </style>
+</head>
+<body>
+    <h1>🎵 Wedding Audio Test</h1>
+    <p style="text-align: center; color: #d4af37;">Test all audio files for the wedding invitation</p>
+
+    <div class="audio-player">
+        <h3>🎼 Kabira Encore (Opening/Closing)</h3>
+        <button onclick="playAudio('kabira')">▶ Play</button>
+        <button onclick="stopAudio('kabira')">■ Stop</button>
+        <div id="status-kabira" class="status info">Ready to play</div>
+    </div>
+
+    <div class="audio-player">
+        <h3>💛 London Thumakda (Haldi)</h3>
+        <button onclick="playAudio('london_thumakda')">▶ Play</button>
+        <button onclick="stopAudio('london_thumakda')">■ Stop</button>
+        <div id="status-london_thumakda" class="status info">Ready to play</div>
+    </div>
+
+    <div class="audio-player">
+        <h3>💚 Mehendi Laga Ke Rakhna (Mehendi)</h3>
+        <button onclick="playAudio('mehendi')">▶ Play</button>
+        <button onclick="stopAudio('mehendi')">■ Stop</button>
+        <div id="status-mehendi" class="status info">Ready to play</div>
+    </div>
+
+    <div class="audio-player">
+        <h3>✨ Khudmai Ke Din (Nikah)</h3>
+        <button onclick="playAudio('khudmai')">▶ Play</button>
+        <button onclick="stopAudio('khudmai')">■ Stop</button>
+        <div id="status-khudmai" class="status info">Ready to play</div>
+    </div>
+
+    <script>
+        const audioElements = {};
+
+        function playAudio(name) {
+            // Stop all other audio first
+            Object.keys(audioElements).forEach(key => {
+                if (key !== name && audioElements[key]) {
+                    audioElements[key].pause();
+                    audioElements[key].currentTime = 0;
+                }
+            });
+
+            // Create or reuse audio element
+            if (!audioElements[name]) {
+                audioElements[name] = new Audio(`/audio/${name}.mp3`);
+                
+                audioElements[name].addEventListener('canplaythrough', () => {
+                    updateStatus(name, '✅ Audio loaded successfully', 'success');
+                });
+
+                audioElements[name].addEventListener('playing', () => {
+                    updateStatus(name, '▶ Now playing...', 'success');
+                });
+
+                audioElements[name].addEventListener('error', (e) => {
+                    updateStatus(name, `❌ Error loading audio: ${e.message || 'Unknown error'}`, 'error');
+                });
+
+                audioElements[name].addEventListener('ended', () => {
+                    updateStatus(name, '⏹ Finished playing', 'info');
+                });
+            }
+
+            updateStatus(name, '⏳ Loading audio...', 'info');
+            
+            audioElements[name].currentTime = 0;
+            audioElements[name].volume = 0.7;
+            audioElements[name].play()
+                .then(() => {
+                    console.log(`Playing: ${name}`);
+                })
+                .catch((error) => {
+                    updateStatus(name, `❌ Playback error: ${error.message}`, 'error');
+                    console.error(`Error playing ${name}:`, error);
+                });
+        }
+
+        function stopAudio(name) {
+            if (audioElements[name]) {
+                audioElements[name].pause();
+                audioElements[name].currentTime = 0;
+                updateStatus(name, '⏹ Stopped', 'info');
+            }
+        }
+
+        function updateStatus(name, message, type) {
+            const statusEl = document.getElementById(`status-${name}`);
+            if (statusEl) {
+                statusEl.textContent = message;
+                statusEl.className = `status ${type}`;
+            }
+        }
+
+        // Preload all audio
+        window.addEventListener('load', () => {
+            console.log('🎵 Audio test page loaded');
+            console.log('Audio files should be at: /audio/*.mp3');
+        });
+    </script>
+</body>
+</html>
